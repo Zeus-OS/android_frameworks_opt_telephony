@@ -327,7 +327,7 @@ public class DataConnection extends StateMachine {
     static final int EVENT_NR_STATE_CHANGED = BASE + 27;
     static final int EVENT_DATA_CONNECTION_METEREDNESS_CHANGED = BASE + 28;
     static final int EVENT_NR_FREQUENCY_CHANGED = BASE + 29;
-    protected static final int EVENT_RETRY_CONNECTION = BASE + 30;
+    static final int EVENT_RETRY_CONNECTION = BASE + 30;
     private static final int CMD_TO_STRING_COUNT = EVENT_RETRY_CONNECTION - BASE + 1;
 
     private static String[] sCmdToString = new String[CMD_TO_STRING_COUNT];
@@ -1851,12 +1851,13 @@ public class DataConnection extends StateMachine {
                     return HANDLED;
                 case EVENT_CONNECT:
                     if (DBG) log("DcInactiveState: mag.what=EVENT_CONNECT");
-                    if (isPdpRejectConfigEnabled() && !isDataCallConnectAllowed()) {
-                        if (DBG) log("DcInactiveState: skip EVENT_CONNECT");
-                        return HANDLED;
-                    }
 
                     ConnectionParams cp = (ConnectionParams) msg.obj;
+                    if (isPdpRejectConfigEnabled() && !isDataCallConnectAllowed()) {
+                        if (DBG) log("DcInactiveState: skip EVENT_CONNECT");
+                        cp.mApnContext.decAndGetConnectionGeneration();
+                        return HANDLED;
+                    }
 
                     if (!initConnection(cp)) {
                         log("DcInactiveState: msg.what=EVENT_CONNECT initConnection failed");
