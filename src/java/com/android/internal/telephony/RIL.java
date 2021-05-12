@@ -666,7 +666,9 @@ public class RIL extends BaseCommands implements CommandsInterface {
 
         TelephonyManager tm = (TelephonyManager) context.getSystemService(
                 Context.TELEPHONY_SERVICE);
-        mIsCellularSupported = tm.isVoiceCapable() || tm.isSmsCapable() || tm.isDataCapable();
+        boolean noRil = SystemProperties.getBoolean("ro.radio.noril", false);
+        mIsCellularSupported = !noRil &&
+                (tm.isVoiceCapable() || tm.isSmsCapable() || tm.isDataCapable());
 
         mRadioResponse = new RadioResponse(this);
         mRadioIndication = new RadioIndication(this);
@@ -6328,6 +6330,8 @@ public class RIL extends BaseCommands implements CommandsInterface {
                 return "RIL_REQUEST_GET_BARRING_INFO";
             case RIL_REQUEST_ENTER_SIM_DEPERSONALIZATION:
                 return "RIL_REQUEST_ENTER_SIM_DEPERSONALIZATION";
+            case RIL_REQUEST_GET_ENHANCED_RADIO_CAPABILITY:
+                return "RIL_REQUEST_GET_ENHANCED_RADIO_CAPABILITY";
 
             default: return "<unknown request>";
         }
